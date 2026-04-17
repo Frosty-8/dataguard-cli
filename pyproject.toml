@@ -1,6 +1,6 @@
 [project]
 name = "dataguard-cli"
-version = "0.1.1"
+version = "0.1.2"
 description = "A fast, modular CLI tool for data quality analysis, profiling, and cleaning using Polars and Rich."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -16,3 +16,6 @@ dependencies = [
 dev = [
     "pytest>=9.0.3",
 ]
+
+[project.scripts]
+dataguard = "dataguard.cli:app"
