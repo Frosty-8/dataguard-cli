@@ -1,0 +1,9 @@
+null_thresholds:
+  critical: 30
+  warning: 0
+
+duplicate_threshold: 0
+
+constant_column: true
+
+email_validation: true
