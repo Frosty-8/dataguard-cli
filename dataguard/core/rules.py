@@ -1,6 +1,6 @@
 import re
 import polars as pl
-from dataguard.config import load_config
+from dataguard.config.loader import load_config
 
 EMAIL_REGEX = r"^[\w\.-]+@[\w\.-]+\.\w+$"
 
