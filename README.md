@@ -12,7 +12,7 @@ Built with **Polars**, **Rich**, and **Typer**, it provides a powerful command-l
 * 🧠 Rule-based issue detection engine
 * 📊 Dataset quality scoring system
 * 🔍 Detailed column-level analysis
-* 🛠️ Auto-fix functionality for cleaning data
+* 🛠️ Safe and controlled data fixing (dry-run by default)
 * 📁 Batch processing for multiple datasets
 * 🔒 Strict mode for pipeline enforcement
 * 🎨 Rich CLI interface with tables and panels
@@ -29,66 +29,100 @@ Built with **Polars**, **Rich**, and **Typer**, it provides a powerful command-l
 pip install dataguard-cli
 ```
 
-### From Source
-
-```bash
-git clone https://github.com/your-username/dataguard-cli.git
-cd dataguard-cli
-pip install -e .
-```
-
 ---
 
 ## 🧑‍💻 Usage
 
-### Scan a dataset
+> After installation, use the `dataguard` command.
+> If CLI is not available, fallback to:
+>
+> ```bash
+> python -m dataguard.cli
+> ```
+
+---
+
+### 🔍 Scan a dataset
 
 ```bash
-dataguard scan data.csv
-```
-
-### Show only important issues
-
-```bash
-dataguard scan data.csv --summary
-```
-
-### Export report
-
-```bash
-dataguard scan data.csv --export report.json
-```
-
-### Strict mode (CI/CD pipelines)
-
-```bash
-dataguard scan data.csv --strict
+dataguard.cli scan data.csv
 ```
 
 ---
 
-### Fix dataset issues
+### 📊 Show only important issues
 
 ```bash
-dataguard fix data.csv
-dataguard fix data.csv --apply-changes
+python -m dataguard.cli scan data.csv --summary
 ```
 
 ---
 
-### Generate structured report
+### 📤 Export scan report
 
 ```bash
-dataguard report data.csv
-dataguard report data.csv --export report.json
+python -m dataguard.cli scan data.csv --export report.json
 ```
 
 ---
 
-### Batch processing
+### 🔒 Strict mode (for pipelines / CI)
 
 ```bash
-dataguard batch ./datasets/
+python -m dataguard.cli scan data.csv --strict
+```
+
+---
+
+## 🛠️ Fix dataset issues
+
+By default, **DataGuard runs in dry-run mode** (no changes applied):
+
+Do not go for these changes as of now, still working on these commands due to real life edge cases do keep changin so please wait for this update in future.
+Focus on Data analytics part with the summary been received for smoother explanations and insights.
+
+```bash
+python -m dataguard.cli fix data.csv
+```
+
+Apply changes explicitly:
+
+```bash
+python -m dataguard.cli fix data.csv --apply-changes
+```
+
+Optionally specify output file:
+
+```bash
+python -m dataguard.cli fix data.csv --apply-changes --output cleaned.csv
+```
+
+---
+
+## 📄 Generate structured report
+
+```bash
+python -m dataguard.cli report data.csv
+```
+
+Export report:
+
+```bash
+python -m dataguard.cli report data.csv --export report.json
+```
+
+---
+
+## 📁 Batch processing
+
+```bash
+python -m dataguard.cli batch ./datasets/
+```
+
+Export batch results:
+
+```bash
+python -m dataguard.cli batch ./datasets/ --export batch.json
 ```
 
 ---
@@ -96,13 +130,13 @@ dataguard batch ./datasets/
 ## 📊 Example Output
 
 ```
-📊 Dataset Quality Score: 78/100 🟠
+📊 Dataset Quality Score: 37.5/100 🔴
 
 Column   Type     Null %   Severity   Issues
 --------------------------------------------------------
-age      Int64    45%      3          High missing values
-email    String   5%       2          Invalid format
-salary   Float64  0%       0          Clean
+age      String   52%      5          High missing values
+email    String   0%       4          Invalid format
+name     String   11%      3          Missing values
 ```
 
 ---
@@ -166,6 +200,7 @@ DataGuard provides a lightweight and extensible way to enforce data validation b
 
 * Schema validation support
 * ML-based anomaly detection
+* Strategy-based fixing engine (safe / smart / aggressive)
 * Integration with data pipelines (Airflow, etc.)
 * Plugin-based rule system
 

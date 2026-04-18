@@ -11,12 +11,12 @@ def apply_fixes(df, results):
         col = row["column"]
         issue_text = row["issue"].lower()
 
-        series = df_clean[col]
-
         # -------------------------------
         # Missing values handling
         # -------------------------------
         if "missing values" in issue_text:
+
+            series = df_clean[col]
 
             # Numeric → median
             if series.dtype in [pl.Int64, pl.Float64]:
@@ -24,29 +24,30 @@ def apply_fixes(df, results):
 
                 if median_val is not None:
                     df_clean = df_clean.with_columns(
-                        series.fill_null(median_val).alias(col)
+                        df_clean[col].fill_null(median_val).alias(col)
                     )
                     changes.append(f"{col}: filled nulls with median")
 
             # String → mode
             else:
                 mode_result = series.mode()
+                mode_val = None
 
                 if isinstance(mode_result, pl.DataFrame):
-                    if mode_result.height == 0:
-                        continue
-                    mode_val = mode_result.to_series()[0]
+                    if mode_result.height > 0:
+                        mode_val = mode_result.to_series()[0]
 
                 elif isinstance(mode_result, pl.Series):
-                    if len(mode_result) == 0:
-                        continue
-                    mode_val = mode_result[0]
+                    if len(mode_result) > 0:
+                        mode_val = mode_result[0]
 
-                else:
+                # 🚨 critical guard
+                if mode_val is None:
+                    changes.append(f"{col}: skipped (no valid mode found)")
                     continue
 
                 df_clean = df_clean.with_columns(
-                    series.fill_null(mode_val).alias(col)
+                    df_clean[col].fill_null(mode_val).alias(col)
                 )
                 changes.append(f"{col}: filled nulls with mode")
 

@@ -2,7 +2,6 @@ import typer
 from dataguard.ui.banner import show_banner
 from dataguard.commands.scan import scan_command
 from dataguard.commands.report import report_command
-from dataguard.core.fixer import apply_fixes
 from dataguard.loader import load_data
 from dataguard.profiler import profile_data
 from dataguard.core.engine import run_engine
@@ -45,38 +44,49 @@ def report(
 @app.command()
 def fix(
     file: str,
-    output: str = typer.Option(None),
-    apply_changes: bool = typer.Option(False),
+    output: str = typer.Option(None, help="Output file path"),
+    apply_changes: bool = typer.Option(
+        False,
+        "--apply-changes",
+        help="Apply fixes to dataset (experimental, use with caution)"
+    ),
 ):
     from dataguard.core.fixer import apply_fixes
 
-    with console.status("Loading dataset..."):
+    with console.status("[bold blue]Loading dataset..."):
         df = load_data(file)
 
-    with console.status("Profiling data..."):
+    with console.status("[bold yellow]Profiling data..."):
         profile = profile_data(df)
 
-    with console.status("Running engine..."):
+    with console.status("[bold green]Running data quality engine..."):
         results = run_engine(df, profile)
 
     console.print(build_summary_panel(compute_quality_score(results)))
     console.print(build_table(results))
 
     if not apply_changes:
-        console.print("\n⚠️ Dry run mode. Use --apply-changes to modify data.")
+        console.print(
+            "\n[yellow]⚠️ Dry run mode (recommended). "
+            "Use --apply-changes to apply fixes (experimental).[/yellow]"
+        )
         return
 
-    with console.status("Applying fixes..."):
+    console.print(
+        "[bold red]⚠️ Applying experimental fixes. Review results carefully.[/bold red]"
+    )
+
+    with console.status("[bold magenta]Applying fixes..."):
         df_clean, changes = apply_fixes(df, results)
 
     for change in changes:
-        console.print(f"✔ {change}")
+        console.print(f"[green]✔ {change}[/green]")
 
     if not output:
         output = "cleaned_data.csv"
 
     df_clean.write_csv(output)
-    console.print(f"\n✅ Cleaned file saved to {output}")
+    console.print(f"\n[bold green]✅ Cleaned file saved to {output}[/bold green]")
 
 
 @app.command()
@@ -91,7 +101,7 @@ def batch(
         if file.suffix not in [".csv", ".json"]:
             continue
 
-        console.print(f"\nProcessing: {file.name}")
+        console.print(f"\n[bold cyan]Processing:[/bold cyan] {file.name}")
 
         df = load_data(str(file))
         profile = profile_data(df)
@@ -109,7 +119,7 @@ def batch(
     if export:
         from dataguard.utils import export_json
         export_json(all_results, export)
-        console.print(f"Batch report exported to {export}")
+        console.print(f"[green]Batch report exported to {export}[/green]")
 
 
 if __name__ == "__main__":
